@@ -1,8 +1,14 @@
 #!/usr/bin/env node
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+import * as fs from "node:fs";
+import * as path from "node:path";
 const command = process.argv[2];
 if (command === "snapshot") {
+    const packageJsonPath = path.join(process.cwd(), "package.json");
+    let dependencies = {};
+    if (fs.existsSync(packageJsonPath)) {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+        dependencies = packageJson.dependencies || {};
+    }
     const snapshot = {
         meta: {
             tool: "infradiff",
@@ -11,12 +17,11 @@ if (command === "snapshot") {
             projectRoot: process.cwd(),
         },
         env: {},
-        dependencies: {},
+        dependencies, // ✅ this is correct
     };
-    //printing the snapshot
     console.log(JSON.stringify(snapshot, null, 2));
 }
 else {
-    console.log("Unknown command: Try 'snapshot' ");
+    console.log("Unknown command: Try 'snapshot'");
 }
 //# sourceMappingURL=cli.js.map
