@@ -29,7 +29,15 @@ if (command === "snapshot") {
     dependencies, // ✅ this is correct
   };
 
+  const outputPath = path.join(process.cwd(), "infradiff.snapshot.json");
+
+    fs.writeFileSync(
+        outputPath,
+        JSON.stringify(snapshot, null, 2),
+        "utf-8"
+    );
   console.log(JSON.stringify(snapshot, null, 2));
+  
 } else {
   console.log("Unknown command: Try 'snapshot'");
 }
