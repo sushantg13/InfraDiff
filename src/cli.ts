@@ -6,6 +6,7 @@ import * as path from "node:path";
 
 // Second command passed to the command line
 const command = process.argv[2];
+const outputArg = process.argv[3];
 
 if (command === "snapshot") {
     
@@ -97,8 +98,7 @@ if (command === "snapshot") {
 
         // 4. Save snapshot to disk
         
-
-    const outputPath = path.join(projectRoot, "infradiff.snapshot.json");
+    const outputPath = path.resolve(process.cwd(), outputArg || "infradiff.snapshot.json");
 
     fs.writeFileSync(
         outputPath,

@@ -4,6 +4,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 // Second command passed to the command line
 const command = process.argv[2];
+const outputArg = process.argv[3];
 if (command === "snapshot") {
     // gets the absolute path of the current project (where the CLI is run)
     const projectRoot = process.cwd();
@@ -67,7 +68,7 @@ if (command === "snapshot") {
         devDependencies,
     };
     // 4. Save snapshot to disk
-    const outputPath = path.join(projectRoot, "infradiff.snapshot.json");
+    const outputPath = path.resolve(process.cwd(), outputArg || "infradiff.snapshot.json");
     fs.writeFileSync(outputPath, JSON.stringify(snapshot, null, 2), "utf-8");
     //print snapshot to console for immediate feedback
     console.log(JSON.stringify(snapshot, null, 2));
