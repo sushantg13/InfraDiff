@@ -10,10 +10,12 @@ if (command === "snapshot") {
     //1. Read dependencies from package.json
     const packageJsonPath = path.join(projectRoot, "package.json");
     let dependencies = {};
+    let devDependencies = {};
     // If package.json exists, read and extract dependencies
     if (fs.existsSync(packageJsonPath)) {
         const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
         dependencies = packageJson.dependencies || {};
+        devDependencies = packageJson.devDependencies || {};
     }
     //2. Discover environment files and keys
     // Common env file patterns used in JS / React / React Native projects
@@ -62,11 +64,12 @@ if (command === "snapshot") {
         },
         // Runtime dependencies from package.json
         dependencies,
+        devDependencies,
     };
     // 4. Save snapshot to disk
     const outputPath = path.join(projectRoot, "infradiff.snapshot.json");
     fs.writeFileSync(outputPath, JSON.stringify(snapshot, null, 2), "utf-8");
-    // Also print snapshot to console for immediate feedback
+    //print snapshot to console for immediate feedback
     console.log(JSON.stringify(snapshot, null, 2));
 }
 else {
