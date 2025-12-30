@@ -26,7 +26,7 @@ if (command === "snapshot") {
       projectRoot: process.cwd(),
     },
     env: {},
-    dependencies, // ✅ this is correct
+    dependencies, 
   };
 
   const outputPath = path.join(process.cwd(), "infradiff.snapshot.json");
@@ -37,7 +37,7 @@ if (command === "snapshot") {
         "utf-8"
     );
   console.log(JSON.stringify(snapshot, null, 2));
-  
+
 } else {
   console.log("Unknown command: Try 'snapshot'");
 }

@@ -17,7 +17,7 @@ if (command === "snapshot") {
             projectRoot: process.cwd(),
         },
         env: {},
-        dependencies, // ✅ this is correct
+        dependencies, 
     };
     const outputPath = path.join(process.cwd(), "infradiff.snapshot.json");
     fs.writeFileSync(outputPath, JSON.stringify(snapshot, null, 2), "utf-8");
