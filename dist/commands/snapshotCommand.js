@@ -9,9 +9,8 @@ export function handleSnapshotCommand(projectRoot, outputPath) {
     // Detect project type
     const projectInfo = detectProject(projectRoot);
     console.log(`Detected: ${projectInfo.frameworks.join(', ')}`);
-    const snapshot = buildSnapshot(projectRoot);
-    // Store detected frameworks and project type in snapshot metadata
-    snapshot.meta.frameworks = projectInfo.frameworks;
+    const snapshot = buildSnapshot(projectRoot, projectInfo.frameworks);
+    // Store project type in snapshot metadata
     snapshot.meta.projectType = projectInfo.frameworks.includes('react-native') ? 'react-native' :
         projectInfo.frameworks.includes('vue') ? 'vue' :
             projectInfo.frameworks.includes('nextjs') ? 'react' :

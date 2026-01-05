@@ -4,16 +4,20 @@
 import { Snapshot } from '../types/snapshot.js';
 import { scanPackageInfo } from './packageScanner.js';
 import { scanEnvInfo } from './envScanner.js';
+import { scanTrackedFiles } from './trackedFiles.js';
 
 /**
  * Build a complete project snapshot
  */
-export function buildSnapshot(projectRoot: string): Snapshot {
+export function buildSnapshot(projectRoot: string, frameworks: string[] = []): Snapshot {
     // Scan package information
     const packageInfo = scanPackageInfo(projectRoot);
     
     // Scan environment information
     const envInfo = scanEnvInfo(projectRoot);
+
+    // Scan tracked files based on project frameworks
+    const trackedFiles = scanTrackedFiles(projectRoot, frameworks);
 
     // Build final snapshot object
     return {
@@ -26,9 +30,9 @@ export function buildSnapshot(projectRoot: string): Snapshot {
             projectType: "generic",
             packageManager: packageInfo.packageManagerInfo.packageManager,
             lockfilePath: packageInfo.packageManagerInfo.lockfilePath,
-            frameworks: [], // Will be populated by command layer
+            frameworks: frameworks,
         },
-        files: {},
+        files: trackedFiles,
         env: envInfo,
         dependencies: packageInfo.dependencies,
         devDependencies: packageInfo.devDependencies,
