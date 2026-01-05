@@ -35,13 +35,22 @@ export interface Snapshot {
   devDependencies: Record<string, string>;
 }
 
+export interface Finding {
+  title: string;
+  severity: 'low' | 'medium' | 'high';
+  confidence: 'low' | 'medium' | 'high';
+  tags: string[];
+  groupKey?: string;
+  data: Record<string, any>;
+  recommendations: string[];
+}
+
 export interface Rule {
   name: string;
-  severity: 'low' | 'medium' | 'high';
   // Function that checks if this rule applies to a specific change
   match: (context: RuleContext) => boolean;
-  // Function that generates the explanation
-  explain: (context: RuleContext) => string;
+  // Function that generates structured finding
+  analyze: (context: RuleContext) => Finding | null;
 }
 
 export interface RuleContext {

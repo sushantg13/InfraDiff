@@ -15,7 +15,7 @@ export function loadRules(frameworks) {
 }
 export function applyRules(diff, frameworks) {
     const rules = loadRules(frameworks);
-    const explanations = [];
+    const findings = [];
     // Check dependencies added
     for (const [pkg, version] of Object.entries(diff.dependencies.added)) {
         const context = {
@@ -29,13 +29,10 @@ export function applyRules(diff, frameworks) {
         };
         for (const rule of rules) {
             if (rule.match(context)) {
-                explanations.push({
-                    rule: rule.name,
-                    severity: rule.severity,
-                    confidence: 'high',
-                    tags: ['dependency'],
-                    message: rule.explain(context)
-                });
+                const finding = rule.analyze(context);
+                if (finding) {
+                    findings.push(finding);
+                }
             }
         }
     }
@@ -54,13 +51,10 @@ export function applyRules(diff, frameworks) {
         };
         for (const rule of rules) {
             if (rule.match(context)) {
-                explanations.push({
-                    rule: rule.name,
-                    severity: rule.severity,
-                    confidence: 'high',
-                    tags: ['dependency'],
-                    message: rule.explain(context)
-                });
+                const finding = rule.analyze(context);
+                if (finding) {
+                    findings.push(finding);
+                }
             }
         }
     }
@@ -77,13 +71,10 @@ export function applyRules(diff, frameworks) {
         };
         for (const rule of rules) {
             if (rule.match(context)) {
-                explanations.push({
-                    rule: rule.name,
-                    severity: rule.severity,
-                    confidence: 'high',
-                    tags: ['devDependency'],
-                    message: rule.explain(context)
-                });
+                const finding = rule.analyze(context);
+                if (finding) {
+                    findings.push(finding);
+                }
             }
         }
     }
@@ -102,13 +93,10 @@ export function applyRules(diff, frameworks) {
         };
         for (const rule of rules) {
             if (rule.match(context)) {
-                explanations.push({
-                    rule: rule.name,
-                    severity: rule.severity,
-                    confidence: 'high',
-                    tags: ['devDependency'],
-                    message: rule.explain(context)
-                });
+                const finding = rule.analyze(context);
+                if (finding) {
+                    findings.push(finding);
+                }
             }
         }
     }
@@ -127,16 +115,53 @@ export function applyRules(diff, frameworks) {
         };
         for (const rule of rules) {
             if (rule.match(context)) {
-                explanations.push({
-                    rule: rule.name,
-                    severity: rule.severity,
-                    confidence: 'high',
-                    tags: ['file', 'config'],
-                    message: rule.explain(context)
-                });
+                const finding = rule.analyze(context);
+                if (finding) {
+                    findings.push(finding);
+                }
             }
         }
     }
-    return explanations;
+    return groupFindings(findings);
+}
+function groupFindings(findings) {
+    const grouped = new Map();
+    const ungrouped = [];
+    // Separate findings by groupKey
+    for (const finding of findings) {
+        if (finding.groupKey) {
+            if (!grouped.has(finding.groupKey)) {
+                grouped.set(finding.groupKey, []);
+            }
+            grouped.get(finding.groupKey).push(finding);
+        }
+        else {
+            ungrouped.push(finding);
+        }
+    }
+    const result = [...ungrouped];
+    // Create grouped findings
+    for (const [groupKey, groupedFindings] of grouped) {
+        if (groupedFindings.length === 1) {
+            // Single finding, no need to group
+            result.push(groupedFindings[0]);
+        }
+        else {
+            // Multiple findings, create grouped finding
+            const first = groupedFindings[0];
+            const allData = groupedFindings.map(f => f.data);
+            const allRecommendations = [...new Set(groupedFindings.flatMap(f => f.recommendations))];
+            result.push({
+                title: `${first.title} (${groupedFindings.length})`,
+                severity: first.severity,
+                confidence: first.confidence,
+                tags: first.tags,
+                groupKey: first.groupKey,
+                data: { items: allData },
+                recommendations: allRecommendations
+            });
+        }
+    }
+    return result;
 }
 //# sourceMappingURL=engine.js.map

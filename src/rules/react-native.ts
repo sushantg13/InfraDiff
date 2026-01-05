@@ -1,10 +1,9 @@
-import { Rule, RuleContext } from './types.js';
+import { Rule, RuleContext, Finding } from './types.js';
 
 export const reactNativeRules: Rule[] = [
   // Rule 1: Native Module Detection
   {
     name: 'Native Module Added',
-    severity: 'high',
     match: (context: RuleContext) => {
       if (!context.change) return false;
       if (context.change.type !== 'dependency') return false;
@@ -24,40 +23,59 @@ export const reactNativeRules: Rule[] = [
       
       return nativeModules.includes(context.change.key);
     },
-    explain: (context: RuleContext) => {
+    analyze: (context: RuleContext): Finding => {
       const pkg = context.change!.key;
-      return `Native module added: ${pkg}\n` +
-             `   Action Required:\n` +
-             `   • iOS: Run 'cd ios && pod install'\n` +
-             `   • Android: May require rebuild\n` +
-             `   Impact: Native code changes require full rebuild`;
+      return {
+        title: 'Native Module Added',
+        severity: 'high',
+        confidence: 'high',
+        tags: ['dependency', 'native', 'ios', 'android'],
+        groupKey: 'native-module-added',
+        data: {
+          module: pkg,
+          version: context.change!.after
+        },
+        recommendations: [
+          "Run 'cd ios && pod install'",
+          "Rebuild Android project",
+          "Test on both iOS and Android platforms"
+        ]
+      };
     }
   },
 
   // Rule 2: React Native Version Change
   {
     name: 'React Native Version Change',
-    severity: 'high',
     match: (context: RuleContext) => {
       if (!context.change) return false;
       return context.change.key === 'react-native' && 
              context.change.action === 'changed';
     },
-    explain: (context: RuleContext) => {
+    analyze: (context: RuleContext): Finding => {
       const { before, after } = context.change!;
-      return `React Native version changed: ${before} → ${after}\n` +
-             `   Major Impact:\n` +
-             `   • Breaking changes possible\n` +
-             `   • Review migration guide: https://react-native-community.github.io/upgrade-helper/\n` +
-             `   • Test thoroughly on both iOS and Android\n` +
-             `   • Check if dependencies are compatible`;
+      return {
+        title: 'React Native Version Change',
+        severity: 'high',
+        confidence: 'high',
+        tags: ['dependency', 'framework', 'breaking'],
+        data: {
+          from: before,
+          to: after
+        },
+        recommendations: [
+          `Review migration guide: https://react-native-community.github.io/upgrade-helper/`,
+          "Test thoroughly on both iOS and Android",
+          "Check if dependencies are compatible",
+          "Review breaking changes documentation"
+        ]
+      };
     }
   },
 
   // Rule 3: Metro Config Dependency
   {
     name: 'Metro-Related Package Change',
-    severity: 'medium',
     match: (context: RuleContext) => {
       if (!context.change) return false;
       const metroPackages = [
@@ -68,56 +86,79 @@ export const reactNativeRules: Rule[] = [
       ];
       return metroPackages.includes(context.change.key);
     },
-    explain: (context: RuleContext) => {
+    analyze: (context: RuleContext): Finding => {
       const { key, action, before, after } = context.change!;
-      if (action === 'changed') {
-        return `Metro bundler config changed: ${key} (${before} → ${after})\n` +
-               `   Impact:\n` +
-               `   • Bundle size may change\n` +
-               `   • Build time may be affected\n` +
-               `   • Clear cache: 'npx react-native start --reset-cache'`;
-      }
-      return `Metro bundler package ${action}: ${key}\n` +
-             `   Impact: Bundling behavior will change`;
+      return {
+        title: 'Metro Package Change',
+        severity: 'medium',
+        confidence: 'high',
+        tags: ['dependency', 'bundler', 'metro'],
+        data: {
+          package: key,
+          action,
+          from: before,
+          to: after
+        },
+        recommendations: [
+          "Clear Metro cache: 'npx react-native start --reset-cache'",
+          "Monitor bundle size and build time",
+          "Test bundling behavior thoroughly"
+        ]
+      };
     }
   },
 
   // Rule 4: Metro Config File Changed
   {
     name: 'Metro Config File Changed',
-    severity: 'medium',
     match: (context: RuleContext) => {
       if (!context.change) return false;
       return context.change.type === 'file' && 
              context.change.key === 'metro.config.js' &&
              context.change.action === 'changed';
     },
-    explain: (context: RuleContext) => {
-      return `Metro config file modified\n` +
-             `   Action Required:\n` +
-             `   • Restart Metro: 'npx react-native start --reset-cache'\n` +
-             `   • If issues persist: delete node_modules and reinstall\n` +
-             `   Impact: Bundling behavior may change`;
+    analyze: (context: RuleContext): Finding => {
+      return {
+        title: 'Metro Config File Changed',
+        severity: 'medium',
+        confidence: 'high',
+        tags: ['file', 'config', 'bundler'],
+        data: {
+          file: 'metro.config.js'
+        },
+        recommendations: [
+          "Restart Metro: 'npx react-native start --reset-cache'",
+          "If issues persist: delete node_modules and reinstall",
+          "Test bundling behavior"
+        ]
+      };
     }
   },
 
   // Rule 5: Babel Config File Changed
   {
     name: 'Babel Config File Changed',
-    severity: 'medium',
     match: (context: RuleContext) => {
       if (!context.change) return false;
       return context.change.type === 'file' && 
              context.change.key === 'babel.config.js' &&
              context.change.action === 'changed';
     },
-    explain: (context: RuleContext) => {
-      return `Babel config file modified\n` +
-             `   Action Required:\n` +
-             `   • Restart Metro: 'npx react-native start --reset-cache'\n` +
-             `   • If new plugins added: run 'npm install'\n` +
-             `   • Rebuild if transforms affect native code\n` +
-             `   Impact: JavaScript transformation may change`;
+    analyze: (context: RuleContext): Finding => {
+      return {
+        title: 'Babel Config File Changed',
+        severity: 'medium',
+        confidence: 'high',
+        tags: ['file', 'config', 'transform'],
+        data: {
+          file: 'babel.config.js'
+        },
+        recommendations: [
+          "Restart Metro: 'npx react-native start --reset-cache'",
+          "If new plugins added: run 'npm install'",
+          "Rebuild if transforms affect native code"
+        ]
+      };
     }
   }
 ];

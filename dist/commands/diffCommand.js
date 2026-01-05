@@ -29,9 +29,9 @@ export function handleDiffCommand(beforePath, afterPath) {
     const report = calcReport(before, after, { beforePath: beforeAbs, afterPath: afterAbs });
     // Apply semantic rules
     const frameworks = after?.meta?.frameworks || ['generic'];
-    const explanations = applyRules(report, frameworks);
-    // Render human-readable explanations first
-    renderHuman(explanations);
+    const findings = applyRules(report, frameworks);
+    // Render human-readable findings first
+    renderHuman(findings);
     // Render JSON report
     renderJson(report);
 }

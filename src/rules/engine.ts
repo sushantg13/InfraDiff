@@ -1,4 +1,4 @@
-import { Rule, RuleContext, Explanation } from './types.js';
+import { Rule, RuleContext, Explanation, Finding } from './types.js';
 import { reactNativeRules } from './react-native.js';
 
 export function loadRules(frameworks: string[]): Rule[] {
@@ -18,9 +18,9 @@ export function loadRules(frameworks: string[]): Rule[] {
   return allRules;
 }
 
-export function applyRules(diff: any, frameworks: string[]): Explanation[] {
+export function applyRules(diff: any, frameworks: string[]): Finding[] {
   const rules = loadRules(frameworks);
-  const explanations: Explanation[] = [];
+  const findings: Finding[] = [];
   
   // Check dependencies added
   for (const [pkg, version] of Object.entries(diff.dependencies.added)) {
@@ -36,13 +36,10 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
     
     for (const rule of rules) {
       if (rule.match(context)) {
-        explanations.push({
-          rule: rule.name,
-          severity: rule.severity,
-          confidence: 'high',
-          tags: ['dependency'],
-          message: rule.explain(context)
-        });
+        const finding = rule.analyze(context);
+        if (finding) {
+          findings.push(finding);
+        }
       }
     }
   }
@@ -63,13 +60,10 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
     
     for (const rule of rules) {
       if (rule.match(context)) {
-        explanations.push({
-          rule: rule.name,
-          severity: rule.severity,
-          confidence: 'high',
-          tags: ['dependency'],
-          message: rule.explain(context)
-        });
+        const finding = rule.analyze(context);
+        if (finding) {
+          findings.push(finding);
+        }
       }
     }
   }
@@ -88,13 +82,10 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
     
     for (const rule of rules) {
       if (rule.match(context)) {
-        explanations.push({
-          rule: rule.name,
-          severity: rule.severity,
-          confidence: 'high',
-          tags: ['devDependency'],
-          message: rule.explain(context)
-        });
+        const finding = rule.analyze(context);
+        if (finding) {
+          findings.push(finding);
+        }
       }
     }
   }
@@ -115,13 +106,10 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
     
     for (const rule of rules) {
       if (rule.match(context)) {
-        explanations.push({
-          rule: rule.name,
-          severity: rule.severity,
-          confidence: 'high',
-          tags: ['devDependency'],
-          message: rule.explain(context)
-        });
+        const finding = rule.analyze(context);
+        if (finding) {
+          findings.push(finding);
+        }
       }
     }
   }
@@ -142,16 +130,57 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
     
     for (const rule of rules) {
       if (rule.match(context)) {
-        explanations.push({
-          rule: rule.name,
-          severity: rule.severity,
-          confidence: 'high',
-          tags: ['file', 'config'],
-          message: rule.explain(context)
-        });
+        const finding = rule.analyze(context);
+        if (finding) {
+          findings.push(finding);
+        }
       }
     }
   }
   
-  return explanations;
+  return groupFindings(findings);
+}
+
+function groupFindings(findings: Finding[]): Finding[] {
+  const grouped = new Map<string, Finding[]>();
+  const ungrouped: Finding[] = [];
+  
+  // Separate findings by groupKey
+  for (const finding of findings) {
+    if (finding.groupKey) {
+      if (!grouped.has(finding.groupKey)) {
+        grouped.set(finding.groupKey, []);
+      }
+      grouped.get(finding.groupKey)!.push(finding);
+    } else {
+      ungrouped.push(finding);
+    }
+  }
+  
+  const result: Finding[] = [...ungrouped];
+  
+  // Create grouped findings
+  for (const [groupKey, groupedFindings] of grouped) {
+    if (groupedFindings.length === 1) {
+      // Single finding, no need to group
+      result.push(groupedFindings[0]);
+    } else {
+      // Multiple findings, create grouped finding
+      const first = groupedFindings[0];
+      const allData = groupedFindings.map(f => f.data);
+      const allRecommendations = [...new Set(groupedFindings.flatMap(f => f.recommendations))];
+      
+      result.push({
+        title: `${first.title} (${groupedFindings.length})`,
+        severity: first.severity,
+        confidence: first.confidence,
+        tags: first.tags,
+        groupKey: first.groupKey,
+        data: { items: allData },
+        recommendations: allRecommendations
+      });
+    }
+  }
+  
+  return result;
 }
