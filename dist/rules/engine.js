@@ -6,7 +6,7 @@ export function loadRules(frameworks) {
             case 'react-native':
                 allRules.push(...reactNativeRules);
                 break;
-            // Add more frameworks here later
+            // Will Add more frameworks here later
             default:
                 break;
         }
@@ -32,6 +32,8 @@ export function applyRules(diff, frameworks) {
                 explanations.push({
                     rule: rule.name,
                     severity: rule.severity,
+                    confidence: 'high',
+                    tags: ['dependency'],
                     message: rule.explain(context)
                 });
             }
@@ -55,6 +57,8 @@ export function applyRules(diff, frameworks) {
                 explanations.push({
                     rule: rule.name,
                     severity: rule.severity,
+                    confidence: 'high',
+                    tags: ['dependency'],
                     message: rule.explain(context)
                 });
             }
@@ -76,6 +80,8 @@ export function applyRules(diff, frameworks) {
                 explanations.push({
                     rule: rule.name,
                     severity: rule.severity,
+                    confidence: 'high',
+                    tags: ['devDependency'],
                     message: rule.explain(context)
                 });
             }
@@ -99,6 +105,8 @@ export function applyRules(diff, frameworks) {
                 explanations.push({
                     rule: rule.name,
                     severity: rule.severity,
+                    confidence: 'high',
+                    tags: ['devDependency'],
                     message: rule.explain(context)
                 });
             }

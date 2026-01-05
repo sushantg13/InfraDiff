@@ -39,6 +39,8 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
         explanations.push({
           rule: rule.name,
           severity: rule.severity,
+          confidence: 'high',
+          tags: ['dependency'],
           message: rule.explain(context)
         });
       }
@@ -64,6 +66,8 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
         explanations.push({
           rule: rule.name,
           severity: rule.severity,
+          confidence: 'high',
+          tags: ['dependency'],
           message: rule.explain(context)
         });
       }
@@ -87,6 +91,8 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
         explanations.push({
           rule: rule.name,
           severity: rule.severity,
+          confidence: 'high',
+          tags: ['devDependency'],
           message: rule.explain(context)
         });
       }
@@ -112,6 +118,8 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
         explanations.push({
           rule: rule.name,
           severity: rule.severity,
+          confidence: 'high',
+          tags: ['devDependency'],
           message: rule.explain(context)
         });
       }

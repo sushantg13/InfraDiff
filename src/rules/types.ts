@@ -1,3 +1,40 @@
+export interface TrackedFile {
+  path: string;
+  exists: boolean;
+  sha256?: string;
+  size?: number;
+  mtimeMs?: number;
+}
+
+export interface FileDiff {
+  path: string;
+  before?: string;  // hash
+  after?: string;   // hash
+  change: "added" | "removed" | "changed";
+}
+
+export interface Snapshot {
+  meta: {
+    tool: string;
+    version: string;
+    schemaVersion: string;
+    createdAt: string;
+    projectRoot: string;
+    projectType: string;
+    packageManager: "yarn" | "npm" | "pnpm" | "unknown";
+    lockfilePath?: string;
+    frameworks: string[];
+  };
+  files: Record<string, TrackedFile>;
+  env: {
+    envFiles: string[];
+    envKeys: string[];
+    keyCount: number;
+  };
+  dependencies: Record<string, string>;
+  devDependencies: Record<string, string>;
+}
+
 export interface Rule {
   name: string;
   severity: 'low' | 'medium' | 'high';
@@ -12,16 +49,20 @@ export interface RuleContext {
   diff: any;
   // Specific change being evaluated
   change?: {
-    type: 'dependency' | 'devDependency' | 'env';
+    type: 'dependency' | 'devDependency' | 'env' | 'file';
     action: 'added' | 'removed' | 'changed';
     key: string;
     before?: any;
     after?: any;
   };
+  // File changes for file-based rules
+  fileChanges?: FileDiff[];
 }
 
 export interface Explanation {
   rule: string;
   severity: 'low' | 'medium' | 'high';
+  confidence: 'low' | 'medium' | 'high';
+  tags: string[];
   message: string;
 }
