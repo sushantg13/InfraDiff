@@ -96,6 +96,20 @@ function diffList(before, after) {
  * - env file names found
  * - env keys found (not values)
  */
+function detectPackageManager(projectRoot) {
+    const lockfiles = [
+        { file: "yarn.lock", manager: "yarn" },
+        { file: "package-lock.json", manager: "npm" },
+        { file: "pnpm-lock.yaml", manager: "pnpm" }
+    ];
+    for (const { file, manager } of lockfiles) {
+        const lockfilePath = path.join(projectRoot, file);
+        if (fs.existsSync(lockfilePath)) {
+            return { packageManager: manager, lockfilePath: file };
+        }
+    }
+    return { packageManager: "unknown" };
+}
 function buildSnapshot(projectRoot) {
     // 1) Read dependencies from package.json (if present)
     const packageJsonPath = path.join(projectRoot, "package.json");
@@ -106,6 +120,8 @@ function buildSnapshot(projectRoot) {
         dependencies = safeRecord(packageJson.dependencies);
         devDependencies = safeRecord(packageJson.devDependencies);
     }
+    // Detect package manager and lockfile
+    const { packageManager, lockfilePath } = detectPackageManager(projectRoot);
     // 2) Discover environment files and keys (no values stored)
     const possibleEnvFiles = [
         ".env",
@@ -142,9 +158,14 @@ function buildSnapshot(projectRoot) {
         meta: {
             tool: "infradiff",
             version: "0.1.0",
+            schemaVersion: "1",
             createdAt: new Date().toISOString(),
             projectRoot,
+            projectType: "generic",
+            packageManager,
+            lockfilePath,
         },
+        files: {},
         env: {
             envFiles: envFilesFound.sort(),
             envKeys: Array.from(envKeysSet).sort(),
@@ -168,8 +189,12 @@ if (command === "snapshot") {
     const projectInfo = detectProject(projectRoot);
     console.log(`Detected: ${projectInfo.frameworks.join(', ')}`);
     const snapshot = buildSnapshot(projectRoot);
-    // Store detected frameworks in snapshot metadata
+    // Store detected frameworks and project type in snapshot metadata
     snapshot.meta.frameworks = projectInfo.frameworks;
+    snapshot.meta.projectType = projectInfo.frameworks.includes('react-native') ? 'react-native' :
+        projectInfo.frameworks.includes('vue') ? 'vue' :
+            projectInfo.frameworks.includes('nextjs') ? 'react' :
+                'generic';
     // Default output name if none provided
     const outputPath = path.resolve(projectRoot, out || "infradiff.snapshot.json");
     // Save snapshot to disk
