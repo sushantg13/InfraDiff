@@ -125,6 +125,33 @@ export function applyRules(diff: any, frameworks: string[]): Explanation[] {
       }
     }
   }
+
+  // Check file changes
+  for (const fileChange of diff.files?.changed || []) {
+    const context: RuleContext = {
+      diff,
+      change: {
+        type: 'file',
+        action: fileChange.change,
+        key: fileChange.path,
+        before: fileChange.before,
+        after: fileChange.after
+      },
+      fileChanges: diff.files?.changed || []
+    };
+    
+    for (const rule of rules) {
+      if (rule.match(context)) {
+        explanations.push({
+          rule: rule.name,
+          severity: rule.severity,
+          confidence: 'high',
+          tags: ['file', 'config'],
+          message: rule.explain(context)
+        });
+      }
+    }
+  }
   
   return explanations;
 }

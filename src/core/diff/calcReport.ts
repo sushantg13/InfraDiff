@@ -5,6 +5,7 @@ import { Snapshot } from '../types/snapshot.js';
 import { Report } from '../types/report.js';
 import { diffMap } from './diffMap.js';
 import { diffList } from './diffList.js';
+import { diffFiles } from './diffFiles.js';
 import { safeRecord } from '../../adapters/json.js';
 
 /**
@@ -28,6 +29,11 @@ export function calcReport(
     after?.env?.envKeys ?? []
   );
 
+  const filesDiff = diffFiles(
+    before?.files ?? {},
+    after?.files ?? {}
+  );
+
   return {
     meta: {
       tool: "infradiff",
@@ -40,6 +46,9 @@ export function calcReport(
       envFiles: envFilesDiff,
       envKeys: envKeysDiff,
     },
+    files: {
+      changed: filesDiff,
+    },
     dependencies: depDiff,
     devDependencies: devDepDiff,
     summary: {
@@ -50,6 +59,9 @@ export function calcReport(
       envKeys: {
         added: envKeysDiff.added.length,
         removed: envKeysDiff.removed.length,
+      },
+      files: {
+        changed: filesDiff.length,
       },
       dependencies: {
         added: Object.keys(depDiff.added).length,

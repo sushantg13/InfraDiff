@@ -2,6 +2,13 @@
  * Report type definitions
  */
 
+export interface FileDiff {
+  path: string;
+  before?: string;  // hash
+  after?: string;   // hash
+  change: "added" | "removed" | "changed";
+}
+
 export interface Report {
   meta: {
     tool: string;
@@ -19,6 +26,9 @@ export interface Report {
       added: string[];
       removed: string[];
     };
+  };
+  files: {
+    changed: FileDiff[];
   };
   dependencies: {
     added: Record<string, string>;
@@ -38,6 +48,9 @@ export interface Report {
     envKeys: {
       added: number;
       removed: number;
+    };
+    files: {
+      changed: number;
     };
     dependencies: {
       added: number;

@@ -80,5 +80,44 @@ export const reactNativeRules: Rule[] = [
       return `Metro bundler package ${action}: ${key}\n` +
              `   Impact: Bundling behavior will change`;
     }
+  },
+
+  // Rule 4: Metro Config File Changed
+  {
+    name: 'Metro Config File Changed',
+    severity: 'medium',
+    match: (context: RuleContext) => {
+      if (!context.change) return false;
+      return context.change.type === 'file' && 
+             context.change.key === 'metro.config.js' &&
+             context.change.action === 'changed';
+    },
+    explain: (context: RuleContext) => {
+      return `Metro config file modified\n` +
+             `   Action Required:\n` +
+             `   • Restart Metro: 'npx react-native start --reset-cache'\n` +
+             `   • If issues persist: delete node_modules and reinstall\n` +
+             `   Impact: Bundling behavior may change`;
+    }
+  },
+
+  // Rule 5: Babel Config File Changed
+  {
+    name: 'Babel Config File Changed',
+    severity: 'medium',
+    match: (context: RuleContext) => {
+      if (!context.change) return false;
+      return context.change.type === 'file' && 
+             context.change.key === 'babel.config.js' &&
+             context.change.action === 'changed';
+    },
+    explain: (context: RuleContext) => {
+      return `Babel config file modified\n` +
+             `   Action Required:\n` +
+             `   • Restart Metro: 'npx react-native start --reset-cache'\n` +
+             `   • If new plugins added: run 'npm install'\n` +
+             `   • Rebuild if transforms affect native code\n` +
+             `   Impact: JavaScript transformation may change`;
+    }
   }
 ];
