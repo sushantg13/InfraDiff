@@ -10,7 +10,7 @@ import { renderHuman } from '../renderers/human.js';
 import { renderJson } from '../renderers/json.js';
 import { Snapshot } from '../core/types/snapshot.js';
 
-export function handleDiffCommand(beforePath: string, afterPath: string): void {
+export function handleDiffCommand(beforePath: string, afterPath: string, showJson: boolean = false): void {
   if (!beforePath || !afterPath) {
     console.log("diff requires two files: infradiff diff <before.json> <after.json>");
     process.exit(1);
@@ -38,9 +38,11 @@ export function handleDiffCommand(beforePath: string, afterPath: string): void {
   const frameworks = after?.meta?.frameworks || ['generic'];
   const findings = applyRules(report, frameworks);
   
-  // Render human-readable findings first
+  // Render human-readable findings (always)
   renderHuman(findings);
 
-  // Render JSON report
-  renderJson(report);
+  // Render JSON report only if --json flag is provided
+  if (showJson) {
+    renderJson(report);
+  }
 }

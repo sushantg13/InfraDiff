@@ -12,7 +12,7 @@ import { handleDiffCommand } from './commands/diffCommand.js';
 /**
  * Main entry point
  */
-const { command, out, positional } = parseArgs(process.argv);
+const { command, out, json, positional } = parseArgs(process.argv);
 
 if (!command || command === "help" || command === "--help" || command === "-h") {
     printHelp();
@@ -28,7 +28,7 @@ if (command === "snapshot") {
 if (command === "diff") {
     const beforePath = positional[0];
     const afterPath = positional[1];
-    handleDiffCommand(beforePath, afterPath);
+    handleDiffCommand(beforePath, afterPath, json);
     process.exit(0);
 }
 

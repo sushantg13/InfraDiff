@@ -5,6 +5,7 @@
 export interface ParsedArgs {
   command: string | undefined;
   out: string | undefined;
+  json: boolean;
   positional: string[];
 }
 
@@ -18,6 +19,7 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const rest = argv.slice(3);
 
   let out: string | undefined;
+  let json = false;
   const positional: string[] = [];
 
   for (let i = 0; i < rest.length; i++) {
@@ -27,8 +29,12 @@ export function parseArgs(argv: string[]): ParsedArgs {
       i++; // skip next
       continue;
     }
+    if (a === "--json") {
+      json = true;
+      continue;
+    }
     positional.push(a);
   }
 
-  return { command, out, positional };
+  return { command, out, json, positional };
 }

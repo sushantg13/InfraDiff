@@ -13,6 +13,7 @@ export interface Report {
   meta: {
     tool: string;
     version: string;
+    schemaVersion: string;
     createdAt: string;
     before: string;
     after: string;

@@ -10,6 +10,7 @@ export function parseArgs(argv) {
     const command = argv[2]; // node dist/cli.js <command>
     const rest = argv.slice(3);
     let out;
+    let json = false;
     const positional = [];
     for (let i = 0; i < rest.length; i++) {
         const a = rest[i];
@@ -18,8 +19,12 @@ export function parseArgs(argv) {
             i++; // skip next
             continue;
         }
+        if (a === "--json") {
+            json = true;
+            continue;
+        }
         positional.push(a);
     }
-    return { command, out, positional };
+    return { command, out, json, positional };
 }
 //# sourceMappingURL=parseArgs.js.map

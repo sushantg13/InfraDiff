@@ -15,6 +15,7 @@ export function calcReport(before, after, meta) {
         meta: {
             tool: "infradiff",
             version: "0.1.0",
+            schemaVersion: "1",
             createdAt: new Date().toISOString(),
             before: meta.beforePath,
             after: meta.afterPath,
