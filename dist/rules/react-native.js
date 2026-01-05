@@ -1,0 +1,84 @@
+export const reactNativeRules = [
+    // Rule 1: Native Module Detection
+    {
+        name: 'Native Module Added',
+        severity: 'high',
+        match: (context) => {
+            if (!context.change)
+                return false;
+            if (context.change.type !== 'dependency')
+                return false;
+            if (context.change.action !== 'added')
+                return false;
+            const nativeModules = [
+                'react-native-maps',
+                'react-native-camera',
+                'react-native-permissions',
+                'react-native-image-picker',
+                'react-native-video',
+                'react-native-gesture-handler',
+                'react-native-reanimated',
+                '@react-native-community/geolocation',
+                'react-native-linear-gradient'
+            ];
+            return nativeModules.includes(context.change.key);
+        },
+        explain: (context) => {
+            const pkg = context.change.key;
+            return `Native module added: ${pkg}\n` +
+                `   Action Required:\n` +
+                `   • iOS: Run 'cd ios && pod install'\n` +
+                `   • Android: May require rebuild\n` +
+                `   Impact: Native code changes require full rebuild`;
+        }
+    },
+    // Rule 2: React Native Version Change
+    {
+        name: 'React Native Version Change',
+        severity: 'high',
+        match: (context) => {
+            if (!context.change)
+                return false;
+            return context.change.key === 'react-native' &&
+                context.change.action === 'changed';
+        },
+        explain: (context) => {
+            const { before, after } = context.change;
+            return `React Native version changed: ${before} → ${after}\n` +
+                `   Major Impact:\n` +
+                `   • Breaking changes possible\n` +
+                `   • Review migration guide: https://react-native-community.github.io/upgrade-helper/\n` +
+                `   • Test thoroughly on both iOS and Android\n` +
+                `   • Check if dependencies are compatible`;
+        }
+    },
+    // Rule 3: Metro Config Dependency
+    {
+        name: 'Metro-Related Package Change',
+        severity: 'medium',
+        match: (context) => {
+            if (!context.change)
+                return false;
+            const metroPackages = [
+                '@react-native/metro-config',
+                'metro',
+                'metro-config',
+                'metro-resolver'
+            ];
+            return metroPackages.includes(context.change.key);
+        },
+        explain: (context) => {
+            const { key, action, before, after } = context.change;
+            if (action === 'changed') {
+                return `Metro bundler config changed: ${key} (${before} → ${after})\n` +
+                    `   Impact:\n` +
+                    `   • Bundle size may change\n` +
+                    `   • Build time may be affected\n` +
+                    `   • Clear cache: 'npx react-native start --reset-cache'`;
+            }
+            return `Metro bundler package ${action}: ${key}\n` +
+                `   Impact: Bundling behavior will change`;
+        }
+    }
+];
+//# sourceMappingURL=react-native.js.map

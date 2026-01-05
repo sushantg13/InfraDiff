@@ -2,6 +2,8 @@
 // Node built-in modules for file system access and path handling
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { detectProject } from './detectors/index.js';
+import { applyRules } from './rules/engine.js';
 /**
  * Tiny arg helper:
  * - Supports: infradiff snapshot --out before.json
@@ -162,13 +164,17 @@ if (!command || command === "help" || command === "--help" || command === "-h") 
 }
 if (command === "snapshot") {
     const projectRoot = process.cwd();
+    // Detect project type
+    const projectInfo = detectProject(projectRoot);
+    console.log(`Detected: ${projectInfo.frameworks.join(', ')}`);
     const snapshot = buildSnapshot(projectRoot);
+    // Store detected frameworks in snapshot metadata
+    snapshot.meta.frameworks = projectInfo.frameworks;
     // Default output name if none provided
     const outputPath = path.resolve(projectRoot, out || "infradiff.snapshot.json");
     // Save snapshot to disk
     fs.writeFileSync(outputPath, JSON.stringify(snapshot, null, 2), "utf-8");
-    // Print for immediate feedback
-    console.log(JSON.stringify(snapshot, null, 2));
+    console.log(`Snapshot saved to ${outputPath}`);
     process.exit(0);
 }
 if (command === "diff") {
@@ -229,6 +235,23 @@ if (command === "diff") {
             },
         },
     };
+    // Apply semantic rules
+    const frameworks = after?.meta?.frameworks || ['generic'];
+    const explanations = applyRules(report, frameworks);
+    // Print human-readable explanations first
+    if (explanations.length > 0) {
+        console.log('\nSemantic Analysis:\n');
+        console.log('='.repeat(60));
+        for (const exp of explanations) {
+            const icon = exp.severity === 'high' ? '🔴 [HIGH]' :
+                exp.severity === 'medium' ? '🟡 [MEDIUM]' : '🟢 [LOW]';
+            console.log(`\n${icon} ${exp.rule}`);
+            console.log(`Severity: ${exp.severity.charAt(0).toUpperCase() + exp.severity.slice(1)}`);
+            console.log(exp.message);
+            console.log('-'.repeat(60));
+        }
+        console.log('\n');
+    }
     console.log(JSON.stringify(report, null, 2));
     process.exit(0);
 }
