@@ -13,13 +13,14 @@ export function loadRules(frameworks) {
     }
     return allRules;
 }
-export function applyRules(diff, frameworks) {
+export function applyRules(diff, frameworks, packageManager = 'unknown') {
     const rules = loadRules(frameworks);
     const findings = [];
     // Check dependencies added
     for (const [pkg, version] of Object.entries(diff.dependencies.added)) {
         const context = {
             diff,
+            packageManager: packageManager,
             change: {
                 type: 'dependency',
                 action: 'added',
@@ -41,6 +42,7 @@ export function applyRules(diff, frameworks) {
         const c = change;
         const context = {
             diff,
+            packageManager: packageManager,
             change: {
                 type: 'dependency',
                 action: 'changed',
@@ -62,6 +64,7 @@ export function applyRules(diff, frameworks) {
     for (const [pkg, version] of Object.entries(diff.devDependencies.added)) {
         const context = {
             diff,
+            packageManager: packageManager,
             change: {
                 type: 'devDependency',
                 action: 'added',
@@ -83,6 +86,7 @@ export function applyRules(diff, frameworks) {
         const c = change;
         const context = {
             diff,
+            packageManager: packageManager,
             change: {
                 type: 'devDependency',
                 action: 'changed',
@@ -104,6 +108,7 @@ export function applyRules(diff, frameworks) {
     for (const fileChange of diff.files?.changed || []) {
         const context = {
             diff,
+            packageManager: packageManager,
             change: {
                 type: 'file',
                 action: fileChange.change,
@@ -122,13 +127,37 @@ export function applyRules(diff, frameworks) {
             }
         }
     }
+    // Add summary rules that evaluate the entire diff context
+    const summaryContext = {
+        diff,
+        packageManager: packageManager,
+        fileChanges: diff.files?.changed || []
+    };
+    for (const rule of rules) {
+        if (rule.match(summaryContext)) {
+            const finding = rule.analyze(summaryContext);
+            if (finding) {
+                findings.push(finding);
+            }
+        }
+    }
     return groupFindings(findings);
 }
 function groupFindings(findings) {
     const grouped = new Map();
     const ungrouped = [];
+    const seen = new Set();
+    // Deduplicate findings by title first
+    const deduplicated = findings.filter(finding => {
+        const key = `${finding.title}-${JSON.stringify(finding.data)}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
     // Separate findings by groupKey
-    for (const finding of findings) {
+    for (const finding of deduplicated) {
         if (finding.groupKey) {
             if (!grouped.has(finding.groupKey)) {
                 grouped.set(finding.groupKey, []);

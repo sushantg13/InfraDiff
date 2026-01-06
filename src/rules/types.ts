@@ -56,6 +56,8 @@ export interface Rule {
 export interface RuleContext {
   // The full diff report
   diff: any;
+  // Package manager from snapshot metadata
+  packageManager: 'npm' | 'yarn' | 'pnpm' | 'unknown';
   // Specific change being evaluated
   change?: {
     type: 'dependency' | 'devDependency' | 'env' | 'file';

@@ -18,7 +18,7 @@ export function loadRules(frameworks: string[]): Rule[] {
   return allRules;
 }
 
-export function applyRules(diff: any, frameworks: string[]): Finding[] {
+export function applyRules(diff: any, frameworks: string[], packageManager: string = 'unknown'): Finding[] {
   const rules = loadRules(frameworks);
   const findings: Finding[] = [];
   
@@ -26,6 +26,7 @@ export function applyRules(diff: any, frameworks: string[]): Finding[] {
   for (const [pkg, version] of Object.entries(diff.dependencies.added)) {
     const context: RuleContext = {
       diff,
+      packageManager: packageManager as 'npm' | 'yarn' | 'pnpm' | 'unknown',
       change: {
         type: 'dependency',
         action: 'added',
@@ -49,6 +50,7 @@ export function applyRules(diff: any, frameworks: string[]): Finding[] {
     const c = change as { from: string; to: string };
     const context: RuleContext = {
       diff,
+      packageManager: packageManager as 'npm' | 'yarn' | 'pnpm' | 'unknown',
       change: {
         type: 'dependency',
         action: 'changed',
@@ -72,6 +74,7 @@ export function applyRules(diff: any, frameworks: string[]): Finding[] {
   for (const [pkg, version] of Object.entries(diff.devDependencies.added)) {
     const context: RuleContext = {
       diff,
+      packageManager: packageManager as 'npm' | 'yarn' | 'pnpm' | 'unknown',
       change: {
         type: 'devDependency',
         action: 'added',
@@ -95,6 +98,7 @@ export function applyRules(diff: any, frameworks: string[]): Finding[] {
     const c = change as { from: string; to: string };
     const context: RuleContext = {
       diff,
+      packageManager: packageManager as 'npm' | 'yarn' | 'pnpm' | 'unknown',
       change: {
         type: 'devDependency',
         action: 'changed',
@@ -118,6 +122,7 @@ export function applyRules(diff: any, frameworks: string[]): Finding[] {
   for (const fileChange of diff.files?.changed || []) {
     const context: RuleContext = {
       diff,
+      packageManager: packageManager as 'npm' | 'yarn' | 'pnpm' | 'unknown',
       change: {
         type: 'file',
         action: fileChange.change,
@@ -138,15 +143,42 @@ export function applyRules(diff: any, frameworks: string[]): Finding[] {
     }
   }
   
+  // Add summary rules that evaluate the entire diff context
+  const summaryContext: RuleContext = {
+    diff,
+    packageManager: packageManager as 'npm' | 'yarn' | 'pnpm' | 'unknown',
+    fileChanges: diff.files?.changed || []
+  };
+  
+  for (const rule of rules) {
+    if (rule.match(summaryContext)) {
+      const finding = rule.analyze(summaryContext);
+      if (finding) {
+        findings.push(finding);
+      }
+    }
+  }
+  
   return groupFindings(findings);
 }
 
 function groupFindings(findings: Finding[]): Finding[] {
   const grouped = new Map<string, Finding[]>();
   const ungrouped: Finding[] = [];
+  const seen = new Set<string>();
+  
+  // Deduplicate findings by title first
+  const deduplicated = findings.filter(finding => {
+    const key = `${finding.title}-${JSON.stringify(finding.data)}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
   
   // Separate findings by groupKey
-  for (const finding of findings) {
+  for (const finding of deduplicated) {
     if (finding.groupKey) {
       if (!grouped.has(finding.groupKey)) {
         grouped.set(finding.groupKey, []);

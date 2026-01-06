@@ -1,4 +1,5 @@
 import { Rule, RuleContext, Finding } from './types.js';
+import { getInstallCommand, getMetroResetCommand, getPodInstallCommand } from './packageManagerUtils.js';
 
 export const reactNativeRules: Rule[] = [
   // Rule 1: Native Module Detection
@@ -88,6 +89,7 @@ export const reactNativeRules: Rule[] = [
     },
     analyze: (context: RuleContext): Finding => {
       const { key, action, before, after } = context.change!;
+      const metroResetCmd = getMetroResetCommand(context.packageManager);
       return {
         title: 'Metro Package Change',
         severity: 'medium',
@@ -100,7 +102,7 @@ export const reactNativeRules: Rule[] = [
           to: after
         },
         recommendations: [
-          "Clear Metro cache: 'npx react-native start --reset-cache'",
+          `Clear Metro cache: '${metroResetCmd}'`,
           "Monitor bundle size and build time",
           "Test bundling behavior thoroughly"
         ]
@@ -118,6 +120,8 @@ export const reactNativeRules: Rule[] = [
              context.change.action === 'changed';
     },
     analyze: (context: RuleContext): Finding => {
+      const metroResetCmd = getMetroResetCommand(context.packageManager);
+      const installCmd = getInstallCommand(context.packageManager);
       return {
         title: 'Metro Config File Changed',
         severity: 'medium',
@@ -127,8 +131,8 @@ export const reactNativeRules: Rule[] = [
           file: 'metro.config.js'
         },
         recommendations: [
-          "Restart Metro: 'npx react-native start --reset-cache'",
-          "If issues persist: delete node_modules and reinstall",
+          `Restart Metro: '${metroResetCmd}'`,
+          `If issues persist: delete node_modules and run '${installCmd}'`,
           "Test bundling behavior"
         ]
       };
@@ -145,6 +149,8 @@ export const reactNativeRules: Rule[] = [
              context.change.action === 'changed';
     },
     analyze: (context: RuleContext): Finding => {
+      const metroResetCmd = getMetroResetCommand(context.packageManager);
+      const installCmd = getInstallCommand(context.packageManager);
       return {
         title: 'Babel Config File Changed',
         severity: 'medium',
@@ -154,9 +160,53 @@ export const reactNativeRules: Rule[] = [
           file: 'babel.config.js'
         },
         recommendations: [
-          "Restart Metro: 'npx react-native start --reset-cache'",
-          "If new plugins added: run 'npm install'",
+          `Restart Metro: '${metroResetCmd}'`,
+          `If new plugins added: run '${installCmd}'`,
           "Rebuild if transforms affect native code"
+        ]
+      };
+    }
+  },
+
+  // Rule 6: Dependencies Updated Summary
+  {
+    name: 'Dependencies Updated',
+    match: (context: RuleContext) => {
+      // Check if both package.json and lockfile changed
+      const fileChanges = context.fileChanges || [];
+      const packageJsonChanged = fileChanges.some(f => f.path === 'package.json' && f.change === 'changed');
+      const lockfileChanged = fileChanges.some(f => 
+        (f.path === 'package-lock.json' || f.path === 'yarn.lock' || f.path === 'pnpm-lock.yaml') && 
+        f.change === 'changed'
+      );
+      return packageJsonChanged && lockfileChanged;
+    },
+    analyze: (context: RuleContext): Finding => {
+      const installCmd = getInstallCommand(context.packageManager);
+      
+      // Check if native modules were added to determine severity
+      const hasNativeModules = Object.keys(context.diff.dependencies?.added || {}).some(pkg => {
+        const nativeModules = [
+          'react-native-maps', 'react-native-camera', 'react-native-permissions',
+          'react-native-image-picker', 'react-native-video', 'react-native-gesture-handler',
+          'react-native-reanimated', '@react-native-community/geolocation', 'react-native-linear-gradient'
+        ];
+        return nativeModules.includes(pkg);
+      });
+      
+      return {
+        title: 'Dependencies Updated',
+        severity: hasNativeModules ? 'medium' : 'low',
+        confidence: 'high',
+        tags: ['dependency', 'lockfile', 'summary'],
+        data: {
+          packageJsonChanged: true,
+          lockfileChanged: true,
+          hasNativeModules
+        },
+        recommendations: [
+          `Run '${installCmd}' to sync dependency tree`,
+          hasNativeModules ? "Native modules detected - see specific native module recommendations" : "Standard dependency update"
         ]
       };
     }

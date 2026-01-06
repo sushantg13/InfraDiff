@@ -29,7 +29,8 @@ export function handleDiffCommand(beforePath, afterPath, showJson = false) {
     const report = calcReport(before, after, { beforePath: beforeAbs, afterPath: afterAbs });
     // Apply semantic rules
     const frameworks = after?.meta?.frameworks || ['generic'];
-    const findings = applyRules(report, frameworks);
+    const packageManager = after?.meta?.packageManager || 'unknown';
+    const findings = applyRules(report, frameworks, packageManager);
     // Render human-readable findings (always)
     renderHuman(findings);
     // Render JSON report only if --json flag is provided

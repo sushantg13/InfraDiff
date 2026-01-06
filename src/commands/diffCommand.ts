@@ -36,7 +36,8 @@ export function handleDiffCommand(beforePath: string, afterPath: string, showJso
 
   // Apply semantic rules
   const frameworks = after?.meta?.frameworks || ['generic'];
-  const findings = applyRules(report, frameworks);
+  const packageManager = after?.meta?.packageManager || 'unknown';
+  const findings = applyRules(report, frameworks, packageManager);
   
   // Render human-readable findings (always)
   renderHuman(findings);
