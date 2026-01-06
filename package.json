@@ -1,24 +1,43 @@
 {
   "name": "infradiff",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Intelligent Infrastructure Change Analysis - Behavior-aware change detection for React Native and Node.js projects",
+  "main": "dist/cli.js",
   "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sushantg13/InfraDiff.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "infrastructure",
+    "diff",
+    "react-native",
+    "nodejs",
+    "dependency-analysis",
+    "change-detection",
+    "cli",
+    "devtools"
+  ],
+  "author": "Sushant Garg",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/sushantg13/InfraDiff/issues"
   },
   "homepage": "https://github.com/sushantg13/InfraDiff#readme",
   "bin": {
     "infradiff": "dist/cli.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
