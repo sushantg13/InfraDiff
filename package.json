@@ -1,5 +1,5 @@
 {
-  "name": "infradiff",
+  "name": "buildsense",
   "version": "1.0.0",
   "description": "Intelligent Infrastructure Change Analysis - Behavior-aware change detection for React Native and Node.js projects",
   "main": "dist/cli.js",
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/sushantg13/InfraDiff#readme",
   "bin": {
-    "infradiff": "dist/cli.js"
+    "buildsense": "dist/cli.js"
   },
   "files": [
     "dist/**/*",

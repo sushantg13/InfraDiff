@@ -1,10 +1,10 @@
-# InfraDiff
+# BuildSense
 
 Intelligent Infrastructure Change Analysis for React Native and Node.js projects.
 
-InfraDiff provides behavior-aware change detection that goes beyond simple dependency diffs. It analyzes your project changes and provides actionable recommendations with context-aware commands tailored to your package manager and framework.
+BuildSense provides behavior-aware change detection that goes beyond simple dependency diffs. It analyzes your project changes and provides actionable recommendations with context-aware commands tailored to your package manager and framework.
 
-InfraDiff is designed for React Native developers who want fast, reliable answers to "what changed and what do I need to do now?" after dependency or configuration updates.
+BuildSense is designed for React Native developers who want fast, reliable answers to "what changed and what do I need to do now?" after dependency or configuration updates.
 
 ## Installation
 
@@ -13,42 +13,42 @@ InfraDiff is designed for React Native developers who want fast, reliable answer
 No installation required. Run directly:
 
 ```bash
-npx infradiff snapshot --out before.json
-npx infradiff diff before.json after.json
+npx buildsense snapshot --out before.json
+npx buildsense diff before.json after.json
 ```
 
 ### Global Installation
 
 ```bash
-npm install -g infradiff
-infradiff snapshot --out before.json
-infradiff diff before.json after.json
+npm install -g buildsense
+buildsense snapshot --out before.json
+buildsense diff before.json after.json
 ```
 
 ## Quick Start
 
 1. **Create a snapshot before making changes:**
    ```bash
-   npx infradiff snapshot --out before.json
+   npx buildsense snapshot --out before.json
    ```
 
 2. **Make your project changes** (add dependencies, modify configs, etc.)
 
 3. **Create a snapshot after changes:**
    ```bash
-   npx infradiff snapshot --out after.json
+   npx buildsense snapshot --out after.json
    ```
 
 4. **Analyze the differences:**
    ```bash
-   npx infradiff diff before.json after.json
+   npx buildsense diff before.json after.json
    ```
 
 ## Simple, Real-World Workflows
 
-InfraDiff is designed to answer one question quickly: **"What changed, and what do I need to do now?"**
+BuildSense is designed to answer one question quickly: **"What changed, and what do I need to do now?"**
 
-Here are two common scenarios where InfraDiff eliminates guesswork.
+Here are two common scenarios where BuildSense eliminates guesswork.
 
 ### Scenario 1: Adding a React Native Feature (Solo Developer)
 
@@ -60,20 +60,20 @@ npm install react-native-maps
 
 After the install, the app no longer builds on iOS, Android crashes on launch, and Metro errors don't clearly explain why.
 
-**With InfraDiff:**
+**With BuildSense:**
 
 Before installing the package:
 ```bash
-npx infradiff snapshot --out before.json
+npx buildsense snapshot --out before.json
 ```
 
 After installing:
 ```bash
-npx infradiff snapshot --out after.json
-npx infradiff diff before.json after.json
+npx buildsense snapshot --out after.json
+npx buildsense diff before.json after.json
 ```
 
-**InfraDiff shows exactly what changed:**
+**BuildSense shows exactly what changed:**
 
 ```
 🟡 [MEDIUM] Dependencies Updated
@@ -91,7 +91,7 @@ Native module added: react-native-maps
    • Test on both iOS and Android platforms
 ```
 
-InfraDiff automatically detects you're using npm and provides the correct install and rebuild steps. Instead of guessing or searching through docs, you immediately know the next steps to fix the issue.
+BuildSense automatically detects you're using npm and provides the correct install and rebuild steps. Instead of guessing or searching through docs, you immediately know the next steps to fix the issue.
 
 ### Scenario 2: Team Collaboration ("It Works on My Machine")
 
@@ -109,20 +109,20 @@ snapshots/
 
 Before making structural changes:
 ```bash
-npx infradiff snapshot --out snapshots/before-maps-feature.json
+npx buildsense snapshot --out snapshots/before-maps-feature.json
 ```
 
 After the changes:
 ```bash
-npx infradiff snapshot --out snapshots/after-maps-feature.json
+npx buildsense snapshot --out snapshots/after-maps-feature.json
 ```
 
 When someone's environment breaks, they can compare:
 ```bash
-npx infradiff diff snapshots/before-maps-feature.json snapshots/after-maps-feature.json
+npx buildsense diff snapshots/before-maps-feature.json snapshots/after-maps-feature.json
 ```
 
-**InfraDiff highlights exactly what matters:**
+**BuildSense highlights exactly what matters:**
 
 ```
 🟡 [MEDIUM] Metro Config File Changed
@@ -172,7 +172,7 @@ Instead of guessing what broke, you immediately see which installs, rebuilds, or
 Creates a snapshot of your project's current state.
 
 ```bash
-npx infradiff snapshot [--out <file>]
+npx buildsense snapshot [--out <file>]
 ```
 
 **Options:**
@@ -180,8 +180,8 @@ npx infradiff snapshot [--out <file>]
 
 **Examples:**
 ```bash
-npx infradiff snapshot --out before.json
-npx infradiff snapshot > snapshot.json
+npx buildsense snapshot --out before.json
+npx buildsense snapshot > snapshot.json
 ```
 
 ### `diff`
@@ -189,7 +189,7 @@ npx infradiff snapshot > snapshot.json
 Analyzes changes between two snapshots and provides semantic insights.
 
 ```bash
-npx infradiff diff <before> <after> [--json]
+npx buildsense diff <before> <after> [--json]
 ```
 
 **Options:**
@@ -197,8 +197,8 @@ npx infradiff diff <before> <after> [--json]
 
 **Examples:**
 ```bash
-npx infradiff diff before.json after.json
-npx infradiff diff before.json after.json --json
+npx buildsense diff before.json after.json
+npx buildsense diff before.json after.json --json
 ```
 
 ## Example Output
