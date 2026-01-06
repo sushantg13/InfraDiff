@@ -1,0 +1,10 @@
+{
+  "meta": {
+    "tool": "infradiff",
+    "version": "0.1.0",
+    "createdAt": "2025-12-29T13:26:05.547Z",
+    "projectRoot": "C:\\dev\\InfraDiff"
+  },
+  "env": {},
+  "dependencies": {}
+}

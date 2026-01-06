@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    /* Project structure */
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    /* Language + runtime */
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+
+    /* Output */
+    "sourceMap": true,
+
+    /* Type safety */
+    "strict": true,
+
+    /* Compatibility + sanity */
+    "esModuleInterop": false,
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}
