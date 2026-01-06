@@ -4,11 +4,11 @@
 
 export function printHelp(): void {
     console.log(`
-InfraDiff - Intelligent Infrastructure Change Analysis
+BuildSense - Intelligent Infrastructure Change Analysis
 
 USAGE:
-  infradiff snapshot [--out <file>]           Create project snapshot
-  infradiff diff <before> <after> [--json]    Analyze changes with semantic insights
+  buildsense snapshot [--out <file>]           Create project snapshot
+  buildsense diff <before> <after> [--json]    Analyze changes with semantic insights
 
 OPTIONS:
   --out, -o <file>    Output snapshot to specified file
@@ -16,9 +16,9 @@ OPTIONS:
   --help, -h          Show this help message
 
 EXAMPLES:
-  infradiff snapshot --out before.json
-  infradiff diff before.json after.json
-  infradiff diff before.json after.json --json
+  buildsense snapshot --out before.json
+  buildsense diff before.json after.json
+  buildsense diff before.json after.json --json
 
 FEATURES:
   • Behavior-aware change detection with actionable recommendations

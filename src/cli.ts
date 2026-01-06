@@ -33,5 +33,5 @@ if (command === "diff") {
 }
 
 // Fallback for unknown commands
-console.log(`Unknown command: ${command}. Try 'infradiff --help'`);
+console.log(`Unknown command: ${command}. Try 'buildsense --help'`);
 process.exit(1);

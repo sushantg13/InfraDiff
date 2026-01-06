@@ -12,7 +12,7 @@ import { Snapshot } from '../core/types/snapshot.js';
 
 export function handleDiffCommand(beforePath: string, afterPath: string, showJson: boolean = false): void {
   if (!beforePath || !afterPath) {
-    console.log("diff requires two files: infradiff diff <before.json> <after.json>");
+    console.log("diff requires two files: buildsense diff <before.json> <after.json>");
     process.exit(1);
   }
 

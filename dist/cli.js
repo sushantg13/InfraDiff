@@ -27,6 +27,6 @@ if (command === "diff") {
     process.exit(0);
 }
 // Fallback for unknown commands
-console.log(`Unknown command: ${command}. Try 'infradiff --help'`);
+console.log(`Unknown command: ${command}. Try 'buildsense --help'`);
 process.exit(1);
 //# sourceMappingURL=cli.js.map
